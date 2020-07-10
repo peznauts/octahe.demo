@@ -1,0 +1,4 @@
+# List of hypervisors that local to an environment. This can largely be omitted in a cloud environment.
+
+TO --escalate='/usr/bin/sudo --preserve-env' carter@172.16.27.215:22
+#TO --escalate='/usr/bin/sudo --preserve-env' carter@172.16.27.67:22

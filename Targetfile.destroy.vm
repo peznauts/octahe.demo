@@ -1,0 +1,6 @@
+# Simple VM cleanup
+
+ARG NAME="Target${NUM:-0}"
+
+RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] && (virsh destroy ${NAME} && virsh undefine ${NAME})
+RUN [ -d /var/lib/libvirt/images/${NAME} ] && rm -rf /var/lib/libvirt/images/${NAME}

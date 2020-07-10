@@ -1,0 +1,51 @@
+# Simple VM create
+
+ARG DISKSIZE="8"
+ARG NAME="Target${NUM:-0}"
+ARG IMAGE="xenial-server-cloudimg-amd64-disk1.img"
+ARG RAM="4096"
+ARG CPU=4
+
+WORKDIR /var/lib/libvirt/images/${NAME}
+
+COPY cloudinit/meta-data /var/lib/libvirt/images/meta-data
+COPY cloudinit/user-data /var/lib/libvirt/images/user-data
+
+RUN sed "s/REPLACEME/${NAME}/g" /var/lib/libvirt/images/meta-data > /var/lib/libvirt/images/${NAME}/meta-data
+RUN sed "s/REPLACEME/${NAME}/g" /var/lib/libvirt/images/user-data > /var/lib/libvirt/images/${NAME}/user-data
+RUN [ -f ~/.ssh/id_rsa.pub ] || ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -P ""
+RUN sed -i "s|REPLACEKEY|$(cat ~/.ssh/id_rsa.pub)|g" meta-data
+RUN sed -i "s|REPLACEKEY|$(cat ~/.ssh/id_rsa.pub)|g" user-data
+RUN [ -f /var/lib/libvirt/images/${NAME}/cidata.iso ] || genisoimage -output /var/lib/libvirt/images/${NAME}/cidata.iso -volid cidata -joliet -r user-data meta-data
+RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || qemu-img create -f qcow2 -o preallocation=falloc /var/lib/libvirt/images/${NAME}/root-disk.qcow2 ${DISKSIZE}G
+RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || virt-resize --expand /dev/sda1 --align-first=auto /mnt/rhv/images/${IMAGE} /var/lib/libvirt/images/${NAME}/root-disk.qcow2
+RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
+    virt-install --ram ${RAM} \
+                 --vcpus=${CPU} \
+                 --graphics vnc,listen=0.0.0.0 \
+                 --controller scsi,model=virtio-scsi \
+                 --serial pty \
+                 --parallel pty \
+                 --virt-type kvm \
+                 --memballoon virtio \
+                 --cpu host-passthrough \
+                 --rng /dev/urandom \
+                 --os-type Linux \
+                 --os-variant rhel7 \
+                 --disk path=/var/lib/libvirt/images/${NAME}/root-disk.qcow2,device=disk,bus=virtio,format=qcow2,discard=unmap,size=${DISKSIZE},cache=none,boot.order=1 \
+                 --disk /var/lib/libvirt/images/${NAME}/cidata.iso,device=cdrom \
+                 --import \
+                 --hvm \
+                 --machine pc-i440fx-4.1 \
+                 --cpu host-passthrough,cache.mode=passthrough \
+                 --network network:uplink,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
+                 --network network:provisioning,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
+                 --network network:external,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
+                 --name ${NAME} \
+                 --watchdog default,action=poweroff \
+                 --dry-run \
+                 --print-xml \
+                 --check all=off \
+                 --noautoconsole > /var/lib/libvirt/images/${NAME}/vm.xml
+RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || virsh define --file /var/lib/libvirt/images/${NAME}/vm.xml
+RUN [ -f /var/run/libvirt/qemu/${NAME}.pid ] || virsh start --domain ${NAME}
