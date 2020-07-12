@@ -35,6 +35,26 @@ ssh_authorized_keys:
 
 # set timezone for VM
 timezone: UTC
-packages: []
+packages:
+- NetworkManager
+- qemu-guest-agent
+- vim
+- network-scripts
+- patch
+- git
+- patchutils
+- iptables-services
+- python*-virtualenv
+- tmux
+- OpenIPMI
+- ipmitool
 
-runcmd: []
+runcmd:
+- systemctl enable qemu-guest-agent
+- systemctl restart qemu-guest-agent
+- systemctl enable sshd
+- systemctl restart sshd
+- systemctl enable NetworkManager
+- systemctl start NetworkManager
+- timedatectl set-timezone UTC
+- hostnamectl --static --transient set-hostname REPLACEME.localdomain

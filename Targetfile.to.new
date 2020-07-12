@@ -1,6 +1,5 @@
 # Demo file from our first twitch stream, which shows how to connect though a bastion hosts.
 
-FROM ubuntu:latest
 TO --escalate='/usr/bin/sudo --preserve-env' ubuntu@172.16.27.73:22
 
 RUN echo hi > /tmp/success

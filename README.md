@@ -9,7 +9,7 @@
 
 This simple repo shows how Octahe could be used to deploy a simple application to 4 targets.
 
-### Overview
+## Overview
 
 * `Targetfile` used to augment an application deployment.
 * Targets are virtual machines running under KVM
@@ -36,3 +36,30 @@ octahe deploy Containerfile Targetfile.to.vm
 ``` shell
 octahe undeploy Containerfile Targetfile.to.vm
 ```
+
+## Demo File Overview
+
+* Targetfile.create.vm
+
+Create a Virtual Machine on a KVM hypervisor
+
+* Targetfile.destroy.vm
+
+Destroy a given VM on a KVM hypervisor
+
+* Targetfile.deploy-swift
+
+Deploy the swift programing language to a Ubuntu target.
+
+* Targetfile.to.new
+
+Simple "Hello world" type demonstration used in the Octahe introduction
+[twitch stream](https://www.youtube.com/watch?v=_h1029bW8xs).
+
+* Targetfile.to.server
+
+List of KVM Hypervisor targets.
+
+* Targetfile.to.vm
+
+List of target VMs to run work on.
