@@ -2,5 +2,6 @@
 
 ARG NAME="Target${NUM:-0}"
 
-RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] && (virsh destroy ${NAME} && virsh undefine ${NAME})
+RUN virsh destroy ${NAME} || true
+RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] && virsh undefine --nvram ${NAME}
 RUN [ -d /var/lib/libvirt/images/${NAME} ] && rm -rf /var/lib/libvirt/images/${NAME}

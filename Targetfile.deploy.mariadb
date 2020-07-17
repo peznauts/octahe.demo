@@ -1,0 +1,14 @@
+
+# Set's a crude password, this should be better in production.
+ARG root_maria_pw=secrete
+
+RUN dnf install -y mariadb-server
+
+# Enable and start our database
+RUN systemctl start mariadb.service
+RUN systemctl enable mariadb.service
+
+# Run a simple secure function for our mariadb server.
+RUN [ -f /etc/my.cnf.secured ] || (mysql -e "UPDATE mysql.user SET Password = PASSWORD('${root_maria_pw}') WHERE User = 'root'" && \
+                                   mysql -e "FLUSH PRIVILEGES" && \
+                                   touch /etc/my.cnf.secured)

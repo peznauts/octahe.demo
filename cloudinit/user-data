@@ -14,7 +14,8 @@ users:
 - name: vm-user
   groups: []
   shell: /bin/bash
-  sudo: ALL=(ALL) NOPASSWD:ALL
+  sudo:
+  - ALL=(ALL) NOPASSWD:ALL
   ssh_pwauth: True
   ssh-authorized-keys:
   - REPLACEKEY
@@ -36,25 +37,11 @@ ssh_authorized_keys:
 # set timezone for VM
 timezone: UTC
 packages:
-- NetworkManager
 - qemu-guest-agent
-- vim
-- network-scripts
-- patch
-- git
-- patchutils
-- iptables-services
-- python*-virtualenv
-- tmux
-- OpenIPMI
-- ipmitool
 
 runcmd:
-- systemctl enable qemu-guest-agent
-- systemctl restart qemu-guest-agent
-- systemctl enable sshd
-- systemctl restart sshd
-- systemctl enable NetworkManager
-- systemctl start NetworkManager
-- timedatectl set-timezone UTC
-- hostnamectl --static --transient set-hostname REPLACEME.localdomain
+- sudo bash -c 'dnf -y upgrade || apt -y upgrade'
+- sudo systemctl enable qemu-guest-agent
+- sudo systemctl restart qemu-guest-agent
+- sudo bash -c 'systemctl enable sshd || systemctl enable ssh'
+- sudo bash -c 'systemctl restart sshd || systemctl restart ssh'

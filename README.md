@@ -21,45 +21,94 @@ This simple repo shows how Octahe could be used to deploy a simple application t
 
 ``` shell
 for i in {1..5}; do
-  octahe deploy Targetfile.create.vm Targetfile.to.server -a NUM=${i}
+  octahe deploy Targetfile.vm.create.i440fx Targetfile.to.servers -a NUM=${i}
 done
 ```
 
 * Deploy the application
 
 ``` shell
-octahe deploy Containerfile Targetfile.to.vm
+octahe deploy Containerfile Targetfile.to.vms
 ```
 
 * Undeploy the application
 
 ``` shell
-octahe undeploy Containerfile Targetfile.to.vm
+octahe undeploy Containerfile Targetfile.to.vms
 ```
 
 ## Demo File Overview
 
-* Targetfile.create.vm
+This repo contains a collection of files and scripts which can be used to
+help understand how Octahe can be used. The following is a list of example
+files which highlight some of Octahe's capabilities.
 
-Create a Virtual Machine on a KVM hypervisor
+## Example scripts
 
-* Targetfile.destroy.vm
+The files within the scripts directory show how specific applications can be deployed, grouped and
+deployed across a diverse infrastructure.
 
-Destroy a given VM on a KVM hypervisor
+###### `deploy-ghost.sh`
 
-* Targetfile.deploy-swift
+Script used to deploy Ghost blogging platform, ensuring all of the dependencies are resolved.
 
-Deploy the swift programing language to a Ubuntu target.
+###### `VMCreate.sh`
 
-* Targetfile.to.new
+Script to create several Virtual Machines.
+
+###### `VMDestroy.sh`
+
+Script to destroy several Virtual Machines.
+
+## Example Target files
+
+These files are examples of how Octahe can be used to deploy specific applications, or perform actions.
+
+###### Targetfile.demo
 
 Simple "Hello world" type demonstration used in the Octahe introduction
 [twitch stream](https://www.youtube.com/watch?v=_h1029bW8xs).
 
-* Targetfile.to.server
+###### Targetfile.deploy.swift
+
+Deploy the swift programing language to a Ubuntu target.
+
+###### Targetfile.deploy.base
+
+Deploy a base platform.
+
+###### Targetfile.deploy.ghost
+
+Deploy the Ghost blogging platform.
+
+###### Targetfile.deploy.mariadb
+
+Deploy the MariaDB database server.
+
+###### Targetfile.deploy.nginx
+
+Deploy the NGINX web server.
+
+###### Targetfile.deploy.nodejs
+
+Deploy the NodeJS language binaries.
+
+###### Targetfile.to.servers
 
 List of KVM Hypervisor targets.
 
-* Targetfile.to.vm
+###### Targetfile.to.vms
 
 List of target VMs to run work on.
+
+###### Targetfile.vm.destroy
+
+Destroy a given VM on a KVM hypervisor
+
+###### Targetfile.vm.create.i440fx
+
+Create a Virtual Machine on a KVM hypervisor
+
+###### Targetfile.vm.create.q35
+
+Create a Virtual Machine on a KVM hypervisor

@@ -1,0 +1,78 @@
+
+ARG ghost_db_pw=SuperSecrete
+ARG domain_name=ghost.localdomain
+ARG domain_proto=http
+ARG domain_port=2368
+
+### Target run environment
+
+# Create our NGINX config for our ghost proxy
+COPY files/nginx-ghost /etc/nginx/conf.d/${domain_name}.conf
+RUN sed -i.bak "s|DOMAIN|${domain_name}|g" /etc/nginx/conf.d/${domain_name}.conf
+RUN sed -i.bak "s|PORT|${domain_port}|g" /etc/nginx/conf.d/${domain_name}.conf
+
+# Ensure out http port is open
+EXPOSE 80
+
+# Ensure out https port is open
+EXPOSE 443
+
+# Ensure we're allowing selinux to play nicely with an http environment
+RUN if [[ $(getenforce || echo "false") == "Enforcing" ]]; then \
+      semanage port --list | grep "${port}" || semanage port -a -t http_port_t -p tcp ${port}; \
+    fi
+
+RUN systemctl restart nginx.service
+
+# Ghost needs sudo privledges, this will allow that to happen via the ghost-application group
+RUN grep -w '^ghost-application\:.*' /etc/group || groupadd --system ghost-application
+RUN echo '%ghost-application ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/ghost-application
+RUN chmod 0440 /etc/sudoers.d/ghost-application
+
+# Create application user
+RUN grep -w "^${domain_name}\:.*" /etc/passwd || adduser --home-dir "/var/www/${domain_name}" \
+                                                         --comment "ghost application user" \
+                                                         --groups ghost-application,systemd-journal \
+                                                         --create-home \
+                                                         --shell /bin/bash \
+                                                         "${domain_name}"
+
+# Globally install ghost-cli
+RUN command -v ghost || npm install ghost-cli@latest -g
+
+# Creates a new environment variable for the application database name
+ENV db_name=$(echo "${domain_name}" | sed -e 's/\./_/g' -e 's/-/_/g')
+
+# Create the application database
+RUN [ -f /var/lib/mysql/${db_name}/db.opt ] || \
+    (mysql -p${root_maria_pw} -e "CREATE DATABASE ${db_name}" && \
+     mysql -p${root_maria_pw} -e "CREATE USER '${db_name}'@'localhost' IDENTIFIED BY '${ghost_db_pw}'" && \
+     mysql -p${root_maria_pw} -e "GRANT ALL PRIVILEGES ON ${db_name}.* TO '${db_name}'@'localhost'")
+
+# Change to our application work directory
+WORKDIR /var/www/${domain_name}
+
+# Run application setup
+USER ${domain_name}
+RUN [ -f config.production.json ] || \
+    ghost install local \
+    --url "${domain_proto}://${domain_name}" \
+    --port "${domain_port}" \
+    --db mysql \
+    --dbhost localhost \
+    --dbuser "${db_name}" \
+    --dbpass "${ghost_db_pw}" \
+    --dbname "${db_name}" \
+    --no-prompt \
+    --no-stack \
+    --no-color \
+    --no-start
+    --auto \
+    --process systemd \
+    --pname "${db_name}"
+
+RUN [ -f config.production.json ] || mv config.development.json config.production.json
+
+# Generate an entrypoint for the application
+ENV NODE_ENV=production
+ENTRYPOINT ["/usr/bin/node", "/usr/bin/ghost", "run"]

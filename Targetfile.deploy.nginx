@@ -1,0 +1,13 @@
+# Install packages
+RUN dnf install -y nginx
+
+RUN [ -d /var/www ] || mkdir -p /var/www
+
+# Ensure we're allowing selinux to play nicely with an http environment
+RUN if [[ $(getenforce || echo "false") == "Enforcing" ]]; then \
+      semanage permissive --list | grep httpd_t || semanage permissive -a httpd_t; \
+    fi
+
+# Start our webserver
+RUN systemctl start nginx.service
+RUN systemctl enable nginx.service
