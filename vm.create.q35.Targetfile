@@ -35,7 +35,6 @@ RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
                  --parallel pty \
                  --virt-type kvm \
                  --memballoon virtio \
-                 --cpu host-passthrough \
                  --rng /dev/urandom \
                  --machine q35 \
                  --boot hd,cdrom,loader=/usr/share/OVMF/OVMF_CODE.fd,loader_ro=yes,loader_type=pflash \
@@ -44,7 +43,7 @@ RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
                  --disk path=/var/lib/libvirt/images/${NAME}/root-disk.qcow2,device=disk,bus=virtio,format=qcow2,discard=unmap,size=${DISKSIZE},cache=none,io=native \
                  --import \
                  --hvm \
-                 --cpu host-passthrough,cache.mode=passthrough \
+                 --cpu host-passthrough,cache.mode=passthrough,topology.cores=${CPU},topology.sockets=1,topology.threads=1 \
                  --network network:uplink,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
                  --network network:provisioning,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
                  --network network:external,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \

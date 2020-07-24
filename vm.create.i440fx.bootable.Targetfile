@@ -17,7 +17,6 @@ RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
                  --parallel pty \
                  --virt-type kvm \
                  --memballoon virtio \
-                 --cpu host-passthrough \
                  --rng /dev/urandom \
                  --os-type Linux \
                  --os-variant rhel7 \
@@ -25,7 +24,7 @@ RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
                  --import \
                  --hvm \
                  --machine pc-i440fx-4.1 \
-                 --cpu host-passthrough,cache.mode=passthrough \
+                 --cpu host-passthrough,cache.mode=passthrough,topology.cores=${CPU},topology.sockets=1,topology.threads=1 \
                  --network network:provisioning,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
                  --network network:external,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
                  --name ${NAME} \

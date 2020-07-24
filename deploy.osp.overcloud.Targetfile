@@ -1,6 +1,4 @@
 ARG THT="/usr/share/openstack-tripleo-heat-templates"
-ARG OSP_PREFIX="rhosp16-openstack-"
-ARG REGISTRY_NAMESPACE="registry.access.redhat.com"
 ARG PUSH_DESTINATION="192.168.4.101:8787"
 ARG NTP_SERVER="time.google.com"
 ARG VIRT_TYPE="kvm"
@@ -24,20 +22,20 @@ RUN . ~/stackrc; openstack overcloud node import instackenv.yaml
 
 RUN . ~/stackrc; if openstack baremetal node list | grep manage; then openstack overcloud node introspect --all-manageable --provide; fi
 
-RUN . ~/stackrc; \
-    sudo -E openstack overcloud container image prepare --namespace="${REGISTRY_NAMESPACE}" \
-                                                     --push-destination="${PUSH_DESTINATION}" \
-                                                     --prefix="${OSP_PREFIX}" \
-                                                     --tag-from-label latest \
-                                                     --output-env-file=/home/cloud-user/generated-overcloud_images.yaml \
-                                                     --output-images-file /home/cloud-user/local_registry_images.yaml \
-                                                     -e /usr/share/openstack-tripleo-heat-templates/environments/services/octavia.yaml \
-                                                     --debug
+RUN [ -f /home/cloud-user/generated-overcloud_images.yaml ] || \
+    . ~/stackrc; \
+    openstack overcloud container image prepare --output-env-file=/home/cloud-user/generated-overcloud_images.yaml \
+                                                --output-images-file /home/cloud-user/local_registry_images.yaml \
+                                                --environment-file /usr/share/openstack-tripleo-heat-templates/environments/services/octavia.yaml \
+                                                --namespace=${OSP_REGISTRY:-registry.access.redhat.io} \
+                                                --tag=${OSP_TAG:-16.1} \
+                                                --prefix=${OSP_PREFIX:-'rhosp16-openstack-'} \
+                                                --exclude ceph \
+                                                --exclude prometheus
 
-RUN . ~/stackrc; \
-    sudo -E openstack overcloud container image upload \
-    --config-file /home/cloud-user/local_registry_images.yaml \
-    --verbose
+RUN [ -f /home/cloud-user/images-uploaded ] || \
+    . ~/stackrc; \
+    sudo -E openstack overcloud container image upload --config-file /home/cloud-user/local_registry_images.yaml && touch /home/cloud-user/images-uploaded
 
 RUN tmux new-session -d -s deploy-tripleo -n deploy-tripleo || true
 RUN tmux new-window -n deploy -t 0 || true
@@ -45,11 +43,11 @@ RUN tmux send-keys " \
     . ~/stackrc; \
     openstack overcloud deploy --stack overcloud-0 \
                                --templates /usr/share/openstack-tripleo-heat-templates/ \
-                               -e /usr/share/openstack-tripleo-heat-templates/environments/disable-telemetry.yaml \
-                               -e /usr/share/openstack-tripleo-heat-templates/environments/enable-swap.yaml \
-                               -e /usr/share/openstack-tripleo-heat-templates/environments/services/octavia.yaml \
-                               -e /home/cloud-user/parameters.yaml \
-                               -e /home/cloud-user/generated-overcloud_images.yaml \
+                               --environment-file /usr/share/openstack-tripleo-heat-templates/environments/disable-telemetry.yaml \
+                               --environment-file /usr/share/openstack-tripleo-heat-templates/environments/enable-swap.yaml \
+                               --environment-file /usr/share/openstack-tripleo-heat-templates/environments/services/octavia.yaml \
+                               --environment-file /home/cloud-user/parameters.yaml \
+                               --environment-file /home/cloud-user/generated-overcloud_images.yaml \
                                --disable-validations \
                                --ntp-server ${NTP_SERVER} \
                                --libvirt-type ${VIRT_TYPE}" C-m

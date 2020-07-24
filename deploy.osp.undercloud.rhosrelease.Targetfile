@@ -1,4 +1,3 @@
-ARG RHOSRELEASE=16
 
 COPY privateFiles/CA-cert.crt /etc/pki/ca-trust/source/anchors/RH-IT-Root-CA.crt
 COPY privateFiles/rhos-release.rpm /tmp/rhos-release.rpm
@@ -6,5 +5,4 @@ COPY privateFiles/rhos-release.rpm /tmp/rhos-release.rpm
 RUN update-ca-trust extract
 RUN update-ca-trust enable
 RUN rpm -qa | grep rhos-release || yum install -y /tmp/rhos-release.rpm
-RUN rhos-release ${RHOSRELEASE}
-
+RUN rhos-release ${RHOSRELEASE:-16}
