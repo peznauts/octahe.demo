@@ -1,0 +1,48 @@
+ARG DISKSIZE="72"
+ARG NAME="Target-${LABEL:-0}"
+ARG RAM="36864"
+ARG CPU=16
+ARG PORT=62300
+
+WORKDIR /var/lib/libvirt/images/${NAME}
+
+RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || qemu-img create -f qcow2 -o preallocation=falloc /var/lib/libvirt/images/${NAME}/root-disk.qcow2 ${DISKSIZE}G
+
+RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
+    virt-install --ram ${RAM} \
+                 --vcpus=${CPU} \
+                 --graphics vnc,listen=0.0.0.0 \
+                 --controller scsi,model=virtio-scsi \
+                 --serial pty \
+                 --parallel pty \
+                 --virt-type kvm \
+                 --memballoon virtio \
+                 --cpu host-passthrough \
+                 --rng /dev/urandom \
+                 --os-type Linux \
+                 --os-variant rhel7 \
+                 --disk path=/var/lib/libvirt/images/${NAME}/root-disk.qcow2,device=disk,bus=virtio,format=qcow2,discard=unmap,size=${DISKSIZE},cache=none,io=native,boot.order=1 \
+                 --import \
+                 --hvm \
+                 --machine pc-i440fx-4.1 \
+                 --cpu host-passthrough,cache.mode=passthrough \
+                 --network network:provisioning,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
+                 --network network:external,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
+                 --name ${NAME} \
+                 --watchdog default,action=poweroff \
+                 --dry-run \
+                 --print-xml \
+                 --check all=off \
+                 --noautoconsole > /var/lib/libvirt/images/${NAME}/vm.xml
+
+RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
+    virsh define --file /var/lib/libvirt/images/${NAME}/vm.xml
+
+# This assumes vbmc is installed on the host
+RUN /opt/vbmc/bin/vbmc list -f value -c Port | grep ${PORT} || \
+    /opt/vbmc/bin/vbmc add ${NAME} \
+    --port ${PORT} \
+    --username root \
+    --password calvin \
+    --address "$(ip -o route get 1 | awk '{print $7}')"
+RUN /opt/vbmc/bin/vbmc start ${NAME}

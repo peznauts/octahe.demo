@@ -5,6 +5,6 @@
 set -euv
 
 for item in {0..2}; do
-    octahe deploy Targetfile.vm.destroy Targetfile.to.servers \
+    octahe deploy vm.destroy.Targetfile to.servers.Targetfile \
                   -a NAME="CentOS8-${item}"
 done

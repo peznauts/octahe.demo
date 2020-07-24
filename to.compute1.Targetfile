@@ -1,0 +1,3 @@
+# Single target, which could also be specified on the CLI however, this is a good example.
+
+TO --escalate='/usr/bin/sudo --preserve-env' carter@172.16.27.215:22

@@ -1,0 +1,36 @@
+---
+parameter_defaults:
+  ContainerCli: podman
+  CloudName: overcloud.localdomain
+  CloudNameInternal: overcloud.internalapi.localdomain
+  CloudNameStorage: overcloud.storage.localdomain
+  CloudNameStorageManagement: overcloud.storagemgmt.localdomain
+  CloudNameCtlplane: overcloud.ctlplane.localdomain
+  CloudDomain: localdomain
+
+  ControllerSchedulerHints:
+    'capabilities:node': 'overcloud-controller-%index%'
+  ComputeSchedulerHints:
+    'capabilities:node': 'overcloud-novacompute-%index%'
+  CephStorageSchedulerHints:
+    'capabilities:node': 'overcloud-ceph-%index%'
+
+  ControllerCount: 1
+  ComputeCount: 1
+  CephStorageCount: 0
+  BlockStorageCount: 0
+  ObjectStorageCount: 0
+
+  OvercloudControlFlavor: baremetal
+  OvercloudComputeFlavor: baremetal
+  OvercloudCephStorageFlavor: baremetal
+  OvercloudBlockStorageFlavor: baremetal
+  OvercloudSwiftStorageFlavor: baremetal
+
+  SELinuxMode: enforcing
+
+  OctaviaTimeoutClientData: 1200000
+  OctaviaTimeoutMemberData: 1200000
+
+resource_registry:
+  OS::TripleO::AllNodes::Validation: /usr/share/openstack-tripleo-heat-templates/ci/common/all-nodes-validation-disabled.yaml

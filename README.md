@@ -21,20 +21,20 @@ This simple repo shows how Octahe could be used to deploy a simple application t
 
 ``` shell
 for i in {1..5}; do
-  octahe deploy Targetfile.vm.create.i440fx Targetfile.to.servers -a NUM=${i}
+  octahe deploy vm.create.i440fx to.servers -a NUM=${i}
 done
 ```
 
 * Deploy the application
 
 ``` shell
-octahe deploy Containerfile Targetfile.to.vms
+octahe deploy Containerfile to.vms
 ```
 
 * Undeploy the application
 
 ``` shell
-octahe undeploy Containerfile Targetfile.to.vms
+octahe undeploy Containerfile to.vms
 ```
 
 ## Demo File Overview
@@ -64,51 +64,86 @@ Script to destroy several Virtual Machines.
 
 These files are examples of how Octahe can be used to deploy specific applications, or perform actions.
 
-###### Targetfile.demo
+###### demo.Targetfile
 
 Simple "Hello world" type demonstration used in the Octahe introduction
 [twitch stream](https://www.youtube.com/watch?v=_h1029bW8xs).
 
-###### Targetfile.deploy.swift
-
-Deploy the swift programing language to a Ubuntu target.
-
-###### Targetfile.deploy.base
+###### deploy.base.Targetfile
 
 Deploy a base platform.
 
-###### Targetfile.deploy.ghost
+###### deploy.ghost.Targetfile
 
 Deploy the Ghost blogging platform.
 
-###### Targetfile.deploy.mariadb
+###### deploy.mariadb.Targetfile
 
 Deploy the MariaDB database server.
 
-###### Targetfile.deploy.nginx
+###### deploy.nginx.Targetfile
 
 Deploy the NGINX web server.
 
-###### Targetfile.deploy.nodejs
+###### deploy.nmcli.router.Targetfile
+
+Setup a target host to connect to a given router.
+
+* In this case the "router" is the gateway and DNS service.
+
+###### deploy.nodejs.Targetfile
 
 Deploy the NodeJS language binaries.
 
-###### Targetfile.to.servers
+###### deploy.osp.undercloud.Targetfile
+
+Deploy the undercloud on a RHEL hosts for use within OSP. The default example is deploying OSP 16.x.
+
+###### deploy.osp.undercloud.rhosrelease.Targetfile
+
+Setup rhosrelease within an osp undercloud target. This is an example of
+setting up a subscription on a RHEL host.
+
+###### deploy.swapfile.Targetfile
+
+Create a swap file on a remote host and ensure the swappiness is defined.
+
+###### deploy.swift.Targetfile
+
+Deploy the swift programing language to a Ubuntu target.
+
+###### Targetfile
+
+Example target file which follows the dockerfile spec explicitly.
+
+###### to.compute1.Targetfile
+
+A single KVM Hypervisor target.
+
+###### to.compute2.Targetfile
+
+A single KVM Hypervisor target.
+
+###### to.servers.Targetfile
 
 List of KVM Hypervisor targets.
 
-###### Targetfile.to.vms
+###### to.vms.Targetfile
 
 List of target VMs to run work on.
 
-###### Targetfile.vm.destroy
+###### vm.create.i440fx.Targetfile
+
+Create a Virtual Machine on a KVM hypervisor
+
+###### vm.create.i440fx.bootable.Targetfile
+
+Create a Virtual Machine on a KVM hypervisor that is bootable via VBMC
+
+###### vm.create.q35.Targetfile
+
+Create a Virtual Machine on a KVM hypervisor
+
+###### vm.destroy.Targetfile
 
 Destroy a given VM on a KVM hypervisor
-
-###### Targetfile.vm.create.i440fx
-
-Create a Virtual Machine on a KVM hypervisor
-
-###### Targetfile.vm.create.q35
-
-Create a Virtual Machine on a KVM hypervisor

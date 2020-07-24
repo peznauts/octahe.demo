@@ -1,4 +1,5 @@
 
+ARG root_maria_pw=secrete
 ARG ghost_db_pw=SuperSecrete
 ARG domain_name=ghost.localdomain
 ARG domain_proto=http

@@ -1,0 +1,23 @@
+
+RUN yum -y install NetworkManager qemu-guest-agent vim network-scripts patch git patchutils iptables-services \
+                   python*-virtualenv tmux OpenIPMI ipmitool python*tripleoclient patch git patchutils \
+                   iptables-services rhosp-director-images rhosp-director-images-ipa python*tripleoclient
+
+RUN modprobe br-netfilter
+RUN echo "br_netfilter" | tee /etc/modules-load.d/99-netfilter.conf
+
+EXPOSE 22
+
+USER cloud-user
+WORKDIR /home/cloud-user
+RUN [ -f ~/.ssh/id_rsa.pub ] || ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -P ""
+
+COPY files/undercloud.conf /home/cloud-user/undercloud.conf
+RUN sed -i.bak "s/^undercloud_nameservers.*/undercloud_nameservers = ${GATEWAY_ADDRESS:-8.8.8.8}/" /home/cloud-user/undercloud.conf
+RUN sed -i.bak "s/^undercloud_ntp_servers.*/undercloud_ntp_servers = ${NTP_SERVER:-time.google.com}/" /home/cloud-user/undercloud.conf
+
+COPY privateFiles/local_images.yaml /home/cloud-user/local_images.yaml
+
+RUN tmux new-session -d -s deploy-tripleo -n deploy-tripleo || true
+RUN tmux new-window -n deploy -t 0 || true
+RUN tmux send-keys "openstack undercloud install" C-m

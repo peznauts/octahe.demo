@@ -21,7 +21,10 @@ RUN sed -i "s|REPLACEKEY|${PUBKEY}|g" user-data
 
 RUN [ -f /var/lib/libvirt/images/${NAME}/cidata.iso ] || genisoimage -output /var/lib/libvirt/images/${NAME}/cidata.iso -volid cidata -joliet -r user-data meta-data
 RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || qemu-img create -f qcow2 -o preallocation=falloc /var/lib/libvirt/images/${NAME}/root-disk.qcow2 ${DISKSIZE}G
-RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || virt-resize --expand /dev/sda1 --align-first=auto /mnt/rhv/images/${IMAGE} /var/lib/libvirt/images/${NAME}/root-disk.qcow2
+RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
+    export ROOT_DEVICE=$(virt-filesystems --long -h --all -a /var/lib/libvirt/images/${NAME}/root-disk.qcow2 | (grep root | awk '{print $1}') || echo /dev/sda1); \
+    virt-resize --quiet --expand ${ROOT_DEVICE} --align-first=auto /mnt/rhv/images/${IMAGE} /var/lib/libvirt/images/${NAME}/root-disk.qcow2
+
 RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
     virt-install --ram ${RAM} \
                  --vcpus=${CPU} \
@@ -35,7 +38,7 @@ RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
                  --rng /dev/urandom \
                  --channel unix,target_type=virtio,name=org.qemu.guest_agent.0 \
                  --disk /var/lib/libvirt/images/${NAME}/cidata.iso,device=cdrom \
-                 --disk path=/var/lib/libvirt/images/${NAME}/root-disk.qcow2,device=disk,bus=virtio,format=qcow2,discard=unmap,size=${DISKSIZE},cache=none \
+                 --disk path=/var/lib/libvirt/images/${NAME}/root-disk.qcow2,device=disk,bus=virtio,format=qcow2,discard=unmap,size=${DISKSIZE},cache=none,io=native \
                  --import \
                  --hvm \
                  --cpu host-passthrough,cache.mode=passthrough \
@@ -48,5 +51,6 @@ RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
                  --print-xml \
                  --check all=off \
                  --noautoconsole > /var/lib/libvirt/images/${NAME}/vm.xml
-RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || virsh define --file /var/lib/libvirt/images/${NAME}/vm.xml
+RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || virsh define --file /var/lib/libvirt/images/${NAME}/vm.xml && \
+                                            virsh autostart --domain ${NAME}
 RUN [ -f /var/run/libvirt/qemu/${NAME}.pid ] || virsh start --domain ${NAME}
