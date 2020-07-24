@@ -1,8 +1,0 @@
-# List of targets I will be deploying my application to. In the case of this demo,
-# these are local VMs, however they could easily be cloud targets hosted on any or
-# all public cloud infrastructure.
-
-TO --escalate='/usr/bin/sudo --preserve-env' centos@172.16.27.99:22
-TO --escalate='/usr/bin/sudo --preserve-env' centos@172.16.27.252:22
-TO --escalate='/usr/bin/sudo --preserve-env' centos@172.16.27.62:22
-TO --escalate='/usr/bin/sudo --preserve-env' centos@172.16.27.107:22

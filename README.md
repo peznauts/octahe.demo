@@ -3,7 +3,7 @@
 </p>
 
 [![License](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/peznauts/swift-octahe/blob/master/LICENSE)
-[![Twitter](https://img.shields.io/twitter/follow/Peznaut.svg?style=social)](https://twitter.com/intent/follow?screen_name=peznaut)
+[![Twitter](https://img.shields.io/twitter/follow/Peznauts.svg?style=social)](https://twitter.com/intent/follow?screen_name=peznaut)
 
 # (O)ctahe Demo application
 
@@ -55,7 +55,7 @@ organized based on their intended purpose.
 
 Simple "Hello world" type demonstration used in the Octahe introduction [twitch
 stream](https://www.youtube.com/watch?v=_h1029bW8xs) can be found here:
-`solutions/demo.Targetfile`.
+`demo.Targetfile`.
 
 #### `app-environment`
 
