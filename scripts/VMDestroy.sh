@@ -4,7 +4,7 @@
 
 set -euv
 
-for item in {0..2}; do
-    octahe deploy vm.destroy.Targetfile to.servers.Targetfile \
-                  -a NAME="CentOS8-${item}"
-done
+export SERVER_TARGET_FILE=${SERVER_TARGET_FILE:-to.servers.Targetfile}
+
+octahe deploy solutions/kvm/vm.destroy.Targetfile ${SERVER_TARGET_FILE} \
+                -a NAME="${NAME}"

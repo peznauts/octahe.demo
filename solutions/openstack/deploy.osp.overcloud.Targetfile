@@ -48,6 +48,7 @@ RUN tmux send-keys " \
                                --environment-file /usr/share/openstack-tripleo-heat-templates/environments/services/octavia.yaml \
                                --environment-file /home/cloud-user/parameters.yaml \
                                --environment-file /home/cloud-user/generated-overcloud_images.yaml \
+                               --environment-file /home/cloud-user/local_images.yaml \
                                --disable-validations \
                                --ntp-server ${NTP_SERVER} \
                                --libvirt-type ${VIRT_TYPE}" C-m

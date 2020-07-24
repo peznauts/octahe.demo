@@ -6,9 +6,9 @@ set -euv
 #                  Because the contents of each file is inserted into the runtime the
 #                  last file is actually the first dependency.
 octahe deploy \
-       --targets="--escalate='/usr/bin/sudo --preserve-env' centos@172.16.27.77:22" \
-       Targetfile.deploy.ghost \
-       Targetfile.deploy.mariadb \
-       Targetfile.deploy.nginx \
-       Targetfile.deploy.nodejs \
-       Targetfile.deploy.base
+       --targets="--escalate='/usr/bin/sudo --preserve-env' ${USER}@${SERVER}" \
+       solutions/applications/deploy.ghost.Targetfile \
+       solutions/services/deploy.mariadb.Targetfile \
+       solutions/services/deploy.nginx.Targetfile \
+       solutions/app-environment/deploy.nodejs.Targetfile \
+       solutions/system/deploy.el-base.Targetfile

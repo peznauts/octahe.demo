@@ -43,107 +43,46 @@ This repo contains a collection of files and scripts which can be used to
 help understand how Octahe can be used. The following is a list of example
 files which highlight some of Octahe's capabilities.
 
-## Example scripts
+## Example `scripts`
 
-The files within the scripts directory show how specific applications can be deployed, grouped and
-deployed across a diverse infrastructure.
+The files within the `scripts` directory show how specific applications can be deployed,
+grouped and deployed across a diverse infrastructure.
 
-###### `deploy-ghost.sh`
+## Solutions
 
-Script used to deploy Ghost blogging platform, ensuring all of the dependencies are resolved.
+The `solutions` directory contains prebuilt deployment solutions which are
+organized based on their intended purpose.
 
-###### `VMCreate.sh`
+Simple "Hello world" type demonstration used in the Octahe introduction [twitch
+stream](https://www.youtube.com/watch?v=_h1029bW8xs) can be found here:
+`solutions/demo.Targetfile`.
 
-Script to create several Virtual Machines.
+#### `app-environment`
 
-###### `VMDestroy.sh`
+The `app-environment` directory contains solution Targetfiles which deploy
+specific application runtime environments like, swift, nodejs, python, etc.
 
-Script to destroy several Virtual Machines.
+#### `applications`
 
-## Example Target files
+The `applications` directory contains solution Targetfiles which deploy
+specific applications, like ghost, wordpress, etc.
 
-These files are examples of how Octahe can be used to deploy specific applications, or perform actions.
+#### `kvm`
 
-###### demo.Targetfile
+The `kvm` directory contains solution Targetfiles which interact with KVM
+hypervisors.
 
-Simple "Hello world" type demonstration used in the Octahe introduction
-[twitch stream](https://www.youtube.com/watch?v=_h1029bW8xs).
+#### `openstack`
 
-###### deploy.base.Targetfile
+The `openstack` directory contains solution Targetfiles which deploy Red Hat
+OpenStack.
 
-Deploy a base platform.
+#### `services`
 
-###### deploy.ghost.Targetfile
+The `services` directory contains solution Targetfiles which deploy specific
+services like, MariaDB, Nginx, Apache, etc.
 
-Deploy the Ghost blogging platform.
+#### `system`
 
-###### deploy.mariadb.Targetfile
-
-Deploy the MariaDB database server.
-
-###### deploy.nginx.Targetfile
-
-Deploy the NGINX web server.
-
-###### deploy.nmcli.router.Targetfile
-
-Setup a target host to connect to a given router.
-
-* In this case the "router" is the gateway and DNS service.
-
-###### deploy.nodejs.Targetfile
-
-Deploy the NodeJS language binaries.
-
-###### deploy.osp.undercloud.Targetfile
-
-Deploy the undercloud on a RHEL hosts for use within OSP. The default example is deploying OSP 16.x.
-
-###### deploy.osp.undercloud.rhosrelease.Targetfile
-
-Setup rhosrelease within an osp undercloud target. This is an example of
-setting up a subscription on a RHEL host.
-
-###### deploy.swapfile.Targetfile
-
-Create a swap file on a remote host and ensure the swappiness is defined.
-
-###### deploy.swift.Targetfile
-
-Deploy the swift programing language to a Ubuntu target.
-
-###### Targetfile
-
-Example target file which follows the dockerfile spec explicitly.
-
-###### to.compute1.Targetfile
-
-A single KVM Hypervisor target.
-
-###### to.compute2.Targetfile
-
-A single KVM Hypervisor target.
-
-###### to.servers.Targetfile
-
-List of KVM Hypervisor targets.
-
-###### to.vms.Targetfile
-
-List of target VMs to run work on.
-
-###### vm.create.i440fx.Targetfile
-
-Create a Virtual Machine on a KVM hypervisor
-
-###### vm.create.i440fx.bootable.Targetfile
-
-Create a Virtual Machine on a KVM hypervisor that is bootable via VBMC
-
-###### vm.create.q35.Targetfile
-
-Create a Virtual Machine on a KVM hypervisor
-
-###### vm.destroy.Targetfile
-
-Destroy a given VM on a KVM hypervisor
+The `system` directory contains solution Targetfiles which sets-up system
+related components like, base packages, swap files, etc.
