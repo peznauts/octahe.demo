@@ -4,6 +4,6 @@
 
 set -euv
 
-octahe deploy --targets='--escalate="/usr/bin/sudo --preserve-env" cloud-user@172.16.27.75' \
+octahe deploy --targets="--escalate='/usr/bin/sudo --preserve-env' ${TARGET_USER:-cloud-user}@${SERVER}:22" \
               solutions/openstack/deploy.osp.overcloud.Targetfile \
               privateFiles/local.Targetfile

@@ -28,7 +28,10 @@ RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
 RUN [ -f /var/lib/libvirt/qemu/nvram/${NAME}_VARS.fd ] || cp /usr/share/OVMF/OVMF_VARS.fd /var/lib/libvirt/qemu/nvram/${NAME}_VARS.fd
 RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
     virt-install --ram ${RAM} \
+                 --hvm \
+                 --cpu host-passthrough,cache.mode=passthrough,topology.cores=${CPU},topology.sockets=1,topology.threads=1 \
                  --vcpus=${CPU} \
+                 --features pmu=off \
                  --graphics vnc,listen=0.0.0.0 \
                  --controller scsi,model=virtio-scsi \
                  --serial pty \
@@ -42,11 +45,8 @@ RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
                  --disk /var/lib/libvirt/images/${NAME}/cidata.iso,device=cdrom \
                  --disk path=/var/lib/libvirt/images/${NAME}/root-disk.qcow2,device=disk,bus=virtio,format=qcow2,discard=unmap,size=${DISKSIZE},cache=none,io=native \
                  --import \
-                 --hvm \
-                 --cpu host-passthrough,cache.mode=passthrough,topology.cores=${CPU},topology.sockets=1,topology.threads=1 \
                  --network network:uplink,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
                  --network network:provisioning,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
-                 --network network:external,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
                  --name ${NAME} \
                  --watchdog default,action=poweroff \
                  --dry-run \

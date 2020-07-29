@@ -10,7 +10,10 @@ RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || qemu-img create -f qcow2 -o prealloc
 
 RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
     virt-install --ram ${RAM} \
+                 --hvm \
+                 --cpu host-passthrough,cache.mode=passthrough,topology.cores=${CPU},topology.sockets=1,topology.threads=1 \
                  --vcpus=${CPU} \
+                 --features pmu=off \
                  --graphics vnc,listen=0.0.0.0 \
                  --controller scsi,model=virtio-scsi \
                  --serial pty \
@@ -22,11 +25,9 @@ RUN [ -f /etc/libvirt/qemu/${NAME}.xml ] || \
                  --os-variant rhel7 \
                  --disk path=/var/lib/libvirt/images/${NAME}/root-disk.qcow2,device=disk,bus=virtio,format=qcow2,discard=unmap,size=${DISKSIZE},cache=none,io=native,boot.order=1 \
                  --import \
-                 --hvm \
                  --machine pc-i440fx-4.1 \
-                 --cpu host-passthrough,cache.mode=passthrough,topology.cores=${CPU},topology.sockets=1,topology.threads=1 \
                  --network network:provisioning,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
-                 --network network:external,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
+                 --network network:uplink,model=virtio,driver_name=vhost,driver_queues=3,trustGuestRxFilters=yes \
                  --name ${NAME} \
                  --watchdog default,action=poweroff \
                  --dry-run \

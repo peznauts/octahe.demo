@@ -6,7 +6,15 @@ ARG VIRT_TYPE="kvm"
 USER cloud-user
 
 WORKDIR /usr/share/openstack-tripleo-heat-templates
-RUN $THT/tools/process-templates.py --roles-data $THT/roles_data.yaml -o /tmp/templates/
+
+COPY files/dual-nic-multi-vlan-controller.yaml /home/cloud-user/dual-nic-multi-vlan-controller.yaml
+COPY files/dual-nic-multi-vlan-compute.yaml /home/cloud-user/dual-nic-multi-vlan-compute.yaml
+COPY files/net-data.yaml /home/cloud-user/net-data.yaml
+RUN $THT/tools/process-templates.py \
+    -p $THT \
+    -r $THT/roles_data.yaml \
+    -n /home/cloud-user/net-data.yaml \
+    -o /tmp/templates/
 
 WORKDIR /home/cloud-user/images
 RUN [ -f ironic-python-agent.kernel ] || for i in overcloud-full.tar ironic-python-agent.tar; do tar xf /usr/share/rhosp-director-images/$i; done
@@ -23,20 +31,21 @@ RUN . ~/stackrc; openstack overcloud node import instackenv.yaml
 RUN . ~/stackrc; if openstack baremetal node list | grep manage; then openstack overcloud node introspect --all-manageable --provide; fi
 
 RUN [ -f /home/cloud-user/generated-overcloud_images.yaml ] || \
-    . ~/stackrc; \
-    openstack overcloud container image prepare --output-env-file=/home/cloud-user/generated-overcloud_images.yaml \
-                                                --output-images-file /home/cloud-user/local_registry_images.yaml \
-                                                --environment-file /usr/share/openstack-tripleo-heat-templates/environments/services/octavia.yaml \
-                                                --namespace=${OSP_REGISTRY:-registry.access.redhat.io} \
-                                                --push-destination=192.168.4.101:8787 \
-                                                --tag=${OSP_TAG:-16.1} \
-                                                --prefix=${OSP_PREFIX:-'rhosp16-openstack-'} \
-                                                --exclude ceph \
-                                                --exclude prometheus
+    (. ~/stackrc; \
+     openstack overcloud container image prepare --output-env-file=/home/cloud-user/generated-overcloud_images.yaml \
+                                                 --output-images-file /home/cloud-user/local_registry_images.yaml \
+                                                 --environment-file /usr/share/openstack-tripleo-heat-templates/environments/services/octavia.yaml \
+                                                 --namespace=${OSP_REGISTRY:-registry.access.redhat.io} \
+                                                 --push-destination=192.168.4.101:8787 \
+                                                 --tag=${OSP_TAG:-16.1} \
+                                                 --prefix=${OSP_PREFIX:-'rhosp16-openstack-'} \
+                                                 --exclude ceph \
+                                                 --exclude prometheus)
 
 RUN [ -f /home/cloud-user/images-uploaded ] || \
-    . ~/stackrc; \
-    sudo -E openstack overcloud container image upload --config-file /home/cloud-user/local_registry_images.yaml && touch /home/cloud-user/images-uploaded
+    (. ~/stackrc; \
+     openstack overcloud container image upload --config-file /home/cloud-user/local_registry_images.yaml && \
+     touch /home/cloud-user/images-uploaded)
 
 RUN tmux new-session -d -s deploy-tripleo -n deploy-tripleo || true
 RUN tmux new-window -n deploy -t 0 || true
@@ -47,8 +56,11 @@ RUN tmux send-keys " \
                                --environment-file /usr/share/openstack-tripleo-heat-templates/environments/disable-telemetry.yaml \
                                --environment-file /usr/share/openstack-tripleo-heat-templates/environments/enable-swap.yaml \
                                --environment-file /usr/share/openstack-tripleo-heat-templates/environments/services/octavia.yaml \
-                               --environment-file /home/cloud-user/parameters.yaml \
+                               --environment-file /usr/share/openstack-tripleo-heat-templates/environments/storage/glance-nfs.yaml \
+                               --environment-file /usr/share/openstack-tripleo-heat-templates/environments/storage/cinder-nfs.yaml \
+                               --environment-file /tmp/templates/environments/network-isolation.yaml \
                                --environment-file /home/cloud-user/generated-overcloud_images.yaml \
+                               --environment-file /home/cloud-user/parameters.yaml \
                                --environment-file /home/cloud-user/local_images.yaml \
                                --disable-validations \
                                --ntp-server ${NTP_SERVER} \

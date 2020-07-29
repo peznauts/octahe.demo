@@ -1,3 +1,4 @@
+ARG THT="/usr/share/openstack-tripleo-heat-templates"
 
 RUN yum -y install NetworkManager qemu-guest-agent vim network-scripts patch git patchutils iptables-services \
                    python*-virtualenv tmux OpenIPMI ipmitool python*tripleoclient patch git patchutils \
@@ -11,6 +12,15 @@ EXPOSE 22
 USER cloud-user
 WORKDIR /home/cloud-user
 RUN [ -f ~/.ssh/id_rsa.pub ] || ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -P ""
+
+COPY files/dual-nic-multi-vlan-controller.yaml /home/cloud-user/dual-nic-multi-vlan-controller.yaml
+COPY files/dual-nic-multi-vlan-compute.yaml /home/cloud-user/dual-nic-multi-vlan-compute.yaml
+COPY files/net-data.yaml /home/cloud-user/net-data.yaml
+RUN $THT/tools/process-templates.py \
+    -p $THT \
+    -r $THT/roles_data.yaml \
+    -n /home/cloud-user/net-data.yaml \
+    -o /tmp/templates/
 
 COPY files/undercloud.conf /home/cloud-user/undercloud.conf
 RUN sed -i.bak "s/^undercloud_nameservers.*/undercloud_nameservers = ${GATEWAY_ADDRESS:-8.8.8.8}/" /home/cloud-user/undercloud.conf

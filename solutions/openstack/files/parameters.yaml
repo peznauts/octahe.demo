@@ -32,5 +32,13 @@ parameter_defaults:
   OctaviaTimeoutClientData: 1200000
   OctaviaTimeoutMemberData: 1200000
 
+  ControlPlaneDefaultRoute: 192.168.4.101
+
+  TenantNetworkVlanID: 200
+  StorageNetworkVlanID: 201
+  StorageMgmtNetworkVlanID: 202
+  InternalApiNetworkVlanID: 203
+  ExternalNetworkVlanID: 204
+
 resource_registry:
   OS::TripleO::AllNodes::Validation: /usr/share/openstack-tripleo-heat-templates/ci/common/all-nodes-validation-disabled.yaml
