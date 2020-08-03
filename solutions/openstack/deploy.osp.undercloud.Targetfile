@@ -7,6 +7,13 @@ RUN yum -y install NetworkManager qemu-guest-agent vim network-scripts patch git
 RUN modprobe br-netfilter
 RUN echo "br_netfilter" | tee /etc/modules-load.d/99-netfilter.conf
 
+RUN [ -f /etc/sysconfig/network-scripts/ifcfg-vlan-vlan204 ] || \
+    nmcli connection add type vlan ifname vlan204 \
+    dev $(ip -o route get 1 | awk '{print $5}') \
+    id 204 \
+    ip4 172.16.4.2/24 \
+    gw4 172.16.4.1
+
 EXPOSE 22
 
 USER cloud-user

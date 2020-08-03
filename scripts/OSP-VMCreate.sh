@@ -14,18 +14,18 @@ octahe deploy solutions/kvm/vm.create.i440fx.Targetfile \
                 -a NAME="OSP-undercloud" \
                 -a RAM=16384 \
                 -a CPU=8 \
-                --targets="--escalate='/usr/bin/sudo --preserve-env' ${USER}@${SERVER1}:22"
+                --targets="--escalate='/usr/bin/sudo --preserve-env' ${USER}@${SERVER1}:22" $@
 
 octahe deploy solutions/kvm/vm.create.i440fx.bootable.Targetfile \
                 -a DISKSIZE="128" \
                 -a NAME="OSP-controller" \
                 -a RAM=32768 \
                 -a CPU=8 \
-                --targets="--escalate='/usr/bin/sudo --preserve-env' ${USER}@${SERVER1}:22"
+                --targets="--escalate='/usr/bin/sudo --preserve-env' ${USER}@${SERVER1}:22" $@
 
 octahe deploy solutions/kvm/vm.create.i440fx.bootable.Targetfile \
                 -a DISKSIZE="768" \
                 -a NAME="OSP-compute" \
                 -a RAM=73728 \
                 -a CPU=30 \
-                --targets="--escalate='/usr/bin/sudo --preserve-env' ${USER}@${SERVER2}:22"
+                --targets="--escalate='/usr/bin/sudo --preserve-env' ${USER}@${SERVER2}:22" $@

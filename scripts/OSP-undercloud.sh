@@ -9,4 +9,4 @@ octahe deploy --targets="--escalate='/usr/bin/sudo --preserve-env' ${TARGET_USER
               solutions/openstack/deploy.osp.undercloud.rhosrelease.Targetfile \
               solutions/system/deploy.nmcli.router.Targetfile \
               solutions/system/deploy.swapfile.Targetfile \
-              privateFiles/local.Targetfile
+              privateFiles/local.Targetfile $@

@@ -15,5 +15,5 @@ for item in {0..2}; do
                   -a DISKSIZE="64" \
                   -a NAME="${NAME}-${item}" \
                   -a RAM="2048" \
-                  -a CPU=4
+                  -a CPU=4 $@
 done

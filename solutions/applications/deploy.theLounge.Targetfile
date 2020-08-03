@@ -1,0 +1,41 @@
+ARG THELOUNGE_USER=thelounge
+ARG THELOUNGE_VERSION=latest
+ARG THELOUNGE_PORT=9000
+ARG THELOUNGE_PUBLIC=false
+ARG domain_name=thelounge.localdomain
+
+# Create our NGINX config for our ghost proxy
+COPY files/nginx-ghost /etc/nginx/conf.d/${domain_name}.conf
+RUN sed -i.bak "s|DOMAIN|${domain_name}|g" /etc/nginx/conf.d/${domain_name}.conf
+RUN sed -i.bak "s|PORT|${THELOUNGE_PORT}|g" /etc/nginx/conf.d/${domain_name}.conf
+
+# Ensure out http port is open
+EXPOSE 80
+
+# Ensure out https port is open
+EXPOSE 443
+
+RUN systemctl restart nginx.service
+
+RUN yarn --non-interactive --frozen-lockfile global add thelounge@${THELOUNGE_VERSION} && \
+    yarn --non-interactive cache clean
+
+# Create application user
+RUN grep -w "^${THELOUNGE_USER}\:.*" /etc/passwd || adduser --home-dir "/var/lib/${THELOUNGE_USER}" \
+                                                            --comment "theLounge application user" \
+                                                            --groups systemd-journal \
+                                                            --create-home \
+                                                            --shell /bin/bash \
+                                                            "${THELOUNGE_USER}"
+
+# Change to our application work directory
+USER ${THELOUNGE_USER}
+WORKDIR /var/lib/${THELOUNGE_USER}
+WORKDIR /var/lib/${THELOUNGE_USER}/.thelounge
+WORKDIR /var/lib/${THELOUNGE_USER}/.thelounge/users
+# When the original user is created, the password will be set to the username. This should be reset upon login.
+RUN [ -f /var/lib/thelounge/.thelounge/users/${THELOUNGE_USER}.json ] || \
+    (printf '{"password": "", "log": false}' > /var/lib/thelounge/.thelounge/users/${THELOUNGE_USER}.json && \
+     echo ${THELOUNGE_USER} | /usr/local/bin/thelounge reset ${THELOUNGE_USER} test)
+
+ENTRYPOINT ["/usr/local/bin/thelounge", "start", "--config", "reverseProxy=true", "--config", "port=${THELOUNGE_PORT}", "--config", "public=${THELOUNGE_PUBLIC}", "--config", "host=127.0.0.1"]
