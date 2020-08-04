@@ -1,6 +1,7 @@
 
 # Set's a crude password, this should be better in production.
 ARG root_maria_pw=secrete
+ARG root_maria_bind=localhost
 
 RUN dnf install -y mariadb-server
 
@@ -12,3 +13,5 @@ RUN systemctl enable mariadb.service
 RUN [ -f /etc/my.cnf.secured ] || (mysql -e "UPDATE mysql.user SET Password = PASSWORD('${root_maria_pw}') WHERE User = 'root'" && \
                                    mysql -e "FLUSH PRIVILEGES" && \
                                    touch /etc/my.cnf.secured)
+
+RUN mysql -u root -p${root_maria_pw} -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'${root_maria_bind}' IDENTIFIED BY '${root_maria_pw}' WITH GRANT OPTION"
