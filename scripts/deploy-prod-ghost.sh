@@ -10,12 +10,12 @@ octahe deploy \
        --targets="--escalate='/usr/bin/sudo --preserve-env' --via=bastion1 ${USER}@${SERVER2}" \
        --targets="--escalate='/usr/bin/sudo --preserve-env' --via=bastion1 ${USER}@${SERVER3}" \
        --connection-quota=3 \
-       solutions/system/deploy.el-base.Targetfile
+       solutions/system/deploy.el-base.Targetfile $@
 
 octahe deploy \
        --targets="--escalate='/usr/bin/sudo --preserve-env' --via=bastion1 ${USER}@${SERVER2}" \
        --args "root_maria_bind=${SERVER3}" \
-       solutions/services/deploy.mariadb.Targetfile
+       solutions/services/deploy.mariadb.Targetfile $@
 
 octahe deploy \
        --targets="--escalate='/usr/bin/sudo --preserve-env' --via=bastion1 ${USER}@${SERVER3}" \
@@ -23,4 +23,4 @@ octahe deploy \
        --args "ghost_db_source=${SERVER3}" \
        solutions/applications/deploy.ghost.Targetfile \
        solutions/services/deploy.nginx.Targetfile \
-       solutions/app-environment/deploy.nodejs.Targetfile
+       solutions/app-environment/deploy.nodejs.Targetfile $@
